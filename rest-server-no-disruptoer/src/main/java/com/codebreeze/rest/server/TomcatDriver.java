@@ -10,6 +10,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import javax.servlet.annotation.WebServlet;
 import java.io.File;
 
 
@@ -18,9 +19,10 @@ public class TomcatDriver {
         final EchoServiceConfiguration echoServiceConfiguration = parseParamsWithJCommander(args);
         final Tomcat tomcat = new Tomcat();
         tomcat.setPort(echoServiceConfiguration.port);
+        tomcat.setSilent(false);
         final File base = new File(System.getProperty("java.io.tmpdir"));
         final Context rootCtx = tomcat.addContext("/", base.getAbsolutePath());
-        Tomcat.addServlet(rootCtx, "springServlet", new DispatcherServlet(getContext()));
+        Tomcat.addServlet(rootCtx, "springServlet", new AsyncDispatcherServlet((getContext())));
         rootCtx.addServletMapping("/*", "springServlet");
         tomcat.start();
         tomcat.getServer().await();
@@ -46,5 +48,13 @@ public class TomcatDriver {
         final AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.setConfigLocation(AppConfig.class.getName());
         return context;
+    }
+
+    @WebServlet(asyncSupported = true)
+    private static class AsyncDispatcherServlet extends DispatcherServlet{
+
+        public AsyncDispatcherServlet(final WebApplicationContext wac) {
+            super(wac);
+        }
     }
 }
