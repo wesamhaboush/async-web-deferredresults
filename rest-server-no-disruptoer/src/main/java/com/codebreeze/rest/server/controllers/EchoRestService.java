@@ -41,13 +41,10 @@ public class EchoRestService {
             value = "/oncec",
             method = RequestMethod.GET
     )
-    public WebAsyncTask<String> addConversationCallable(@RequestParam("text") final String text) {
-        return new WebAsyncTask(1000l, taskExecutor, new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return echoService.echo(text);
-            }
-        });
+//    public WebAsyncTask<String> addConversationCallable(@RequestParam("text") final String text) {
+    public Callable<String> addConversationCallable(@RequestParam("text") final String text) {
+//        return new WebAsyncTask(10000l, taskExecutor, () -> echoService.echo(text));
+        return () -> echoService.echo(text);
     }
 
     @RequestMapping(
@@ -57,11 +54,7 @@ public class EchoRestService {
     public DeferredResult<String> addConversationDefferred(@RequestParam("text") final String text) {
         final DeferredResult<String> deferredResult = new DeferredResult<>();
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(100));
-        ListenableFuture<String> resultListenableFuture = service.submit(new Callable<String>() {
-            public String call() {
-                return echoService.echo(text);
-            }
-        });
+        ListenableFuture<String> resultListenableFuture = service.submit(() -> echoService.echo(text));
         Futures.addCallback(resultListenableFuture, new FutureCallback<String>() {
             public void onSuccess(String result) {
                 deferredResult.setResult(result);

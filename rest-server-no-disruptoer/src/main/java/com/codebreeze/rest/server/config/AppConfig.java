@@ -5,6 +5,7 @@ import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -12,7 +13,7 @@ import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -20,10 +21,10 @@ import java.util.concurrent.Future;
 
 
 @Configuration
-@ComponentScan(basePackages = {"com.codebreeze.rest.server.controllers"})
+@ComponentScan(basePackages = {"com.codebreeze.rest.server"})
 @EnableWebMvc
 @EnableAsync
-public class AppConfig implements AsyncConfigurer{
+public class AppConfig extends WebMvcConfigurationSupport implements AsyncConfigurer {
     @Bean
     public EchoService echoService() {
         return new EchoService();
@@ -32,43 +33,22 @@ public class AppConfig implements AsyncConfigurer{
     @Bean
     public AsyncTaskExecutor taskExecutor(){
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-//        {
-//            public void execute(Runnable task) {
-//                System.out.println("execute");
-//                super.execute(task);
-//            }
-//
-//            public void execute(Runnable task, long startTimeout) {
-//                System.out.println("execute");
-//                super.execute(task, startTimeout);
-//            }
-//
-//            public Future<?> submit(Runnable task) {
-//                System.out.println("submit");
-//                return super.submit(task);
-//            }
-//
-//            public <T> Future<T> submit(Callable<T> task) {
-//                System.out.println("submit");
-//                return super.submit(task);
-//            }
-//
-//            public ListenableFuture<?> submitListenable(Runnable task) {
-//                System.out.println("submitListenable");
-//                return super.submitListenable(task);
-//            }
-//
-//            public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
-//                System.out.println("submitListenable");
-//                return super.submitListenable(task);
-//            }
-//        };
         threadPoolTaskExecutor.setCorePoolSize(1000);
         threadPoolTaskExecutor.setMaxPoolSize(1000);
         threadPoolTaskExecutor.setQueueCapacity(1000);
         return threadPoolTaskExecutor;
     }
 
+    @Bean
+    public AsyncTaskExecutor ringBufferTaskExecutor(Environment env) {
+        return new RingBufferAsyncTaskExecutor(env)
+                .setBacklog(4096);
+    }
+
+    /**
+     * this is used for general async, not for mvc customizations
+     * @return
+     */
     @Override
     public Executor getAsyncExecutor() {
         return taskExecutor();
@@ -78,4 +58,26 @@ public class AppConfig implements AsyncConfigurer{
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return null;
     }
+
+    /**
+     * Configure asynchronous request handling options.
+     */
+//    public void configureAsyncSupport(AsyncSupportConfigurer configurer){
+//           configurer.setTaskExecutor(taskExecutor());
+//    }
+
+    /**
+     * this is used for mvc executor customizations (i.e.
+     * @return
+     */
+    @Bean
+    protected WebMvcConfigurer webMvcConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+                configurer.setTaskExecutor(taskExecutor());
+            }
+        };
+    }
+
 }
