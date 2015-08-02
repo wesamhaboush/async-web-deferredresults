@@ -12,13 +12,15 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import javax.servlet.annotation.WebServlet;
+
 
 public class JettyDriver {
     public static void main(final String... args) throws Exception {
         final EchoServiceConfiguration echoServiceConfiguration = parseParamsWithJCommander(args);
         final Server server = new Server(echoServiceConfiguration.port);
 
-        final ServletHolder servletHolder = new ServletHolder(new DispatcherServlet(getContext()));
+        final ServletHolder servletHolder = new ServletHolder(new AsyncDispatcherServlet(getContext()));
         final ServletContextHandler servletContextHandler = new ServletContextHandler();
         servletContextHandler.setContextPath("/");
         servletContextHandler.addServlet(servletHolder, "/*");
@@ -51,5 +53,13 @@ public class JettyDriver {
         final AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.setConfigLocation(AppConfig.class.getName());
         return context;
+    }
+
+    @WebServlet(asyncSupported = true)
+    private static class AsyncDispatcherServlet extends DispatcherServlet{
+
+        public AsyncDispatcherServlet(final WebApplicationContext wac) {
+            super(wac);
+        }
     }
 }
