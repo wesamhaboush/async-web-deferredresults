@@ -39,12 +39,6 @@ public class AppConfig extends WebMvcConfigurationSupport implements AsyncConfig
         return threadPoolTaskExecutor;
     }
 
-    @Bean
-    public AsyncTaskExecutor ringBufferTaskExecutor(Environment env) {
-        return new RingBufferAsyncTaskExecutor(env)
-                .setBacklog(4096);
-    }
-
     /**
      * this is used for general async, not for mvc customizations
      * @return
