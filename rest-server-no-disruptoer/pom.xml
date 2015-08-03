@@ -1,21 +1,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.codebreeze.rest.server</groupId>
-	<artifactId>spring4-jetty-javaconfig</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+    <groupId>com.codebreeze.rest.server</groupId>
+    <artifactId>spring4-jetty-javaconfig</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
-	<name>Spring4, JavaConfig, Jetty</name>
-	<url>http://maven.apache.org</url>
+    <name>Spring4, JavaConfig, Jetty</name>
+    <url>http://maven.apache.org</url>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>4.1.2.RELEASE</org.springframework.version>
-    <org.eclipse.jetty.version>9.2.3.v20140905</org.eclipse.jetty.version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.springframework.version>4.1.2.RELEASE</org.springframework.version>
+        <org.eclipse.jetty.version>9.3.1.v20150714</org.eclipse.jetty.version>
     </properties>
 
-	<build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -123,13 +123,13 @@
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-core</artifactId>
-            <version>1.2.0.Beta4</version>
+            <version>1.2.9.Final</version>
         </dependency>
 
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-servlet</artifactId>
-            <version>1.2.0.Beta4</version>
+            <version>1.2.9.Final</version>
         </dependency>
 
         <dependency>

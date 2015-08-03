@@ -19,7 +19,6 @@ public class JettyDriver {
     public static void main(final String... args) throws Exception {
         final EchoServiceConfiguration echoServiceConfiguration = parseParamsWithJCommander(args);
         final Server server = new Server(echoServiceConfiguration.port);
-
         final ServletHolder servletHolder = new ServletHolder(new AsyncDispatcherServlet(getContext()));
         final ServletContextHandler servletContextHandler = new ServletContextHandler();
         servletContextHandler.setContextPath("/");

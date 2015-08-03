@@ -45,8 +45,8 @@ public class UndertowDriver {
                     .addHttpListener(echoServiceConfiguration.port, "localhost")
                     .addHttpListener(echoServiceConfiguration.port, Inet4Address.getLocalHost().getHostAddress())
                     .setHandler(servletHandler)
-                    .setIoThreads(50)
-                    .setWorkerThreads(100)
+                    .setIoThreads(500)
+                    .setWorkerThreads(500)
                     .build();
             server.start();
         } catch (ServletException | UnknownHostException e) {
