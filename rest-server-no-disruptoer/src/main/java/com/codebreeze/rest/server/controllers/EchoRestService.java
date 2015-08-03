@@ -2,32 +2,24 @@ package com.codebreeze.rest.server.controllers;
 
 import com.codebreeze.rest.server.services.EchoService;
 import com.google.common.util.concurrent.*;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
-import org.springframework.web.context.request.async.WebAsyncTask;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-import static org.springframework.http.MediaType.TEXT_XML_VALUE;
 
 @RestController
 @RequestMapping(value = "/echo")
 public class EchoRestService {
+    public static final ListeningExecutorService LISTENING_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1000));
+
     @Autowired
     private EchoService echoService;
 
-    @Autowired
-    private AsyncTaskExecutor taskExecutor;
 
     @RequestMapping(
             value = "/once",
@@ -41,9 +33,7 @@ public class EchoRestService {
             value = "/oncec",
             method = RequestMethod.GET
     )
-//    public WebAsyncTask<String> addConversationCallable(@RequestParam("text") final String text) {
     public Callable<String> addConversationCallable(@RequestParam("text") final String text) {
-//        return new WebAsyncTask(10000l, taskExecutor, () -> echoService.echo(text));
         return () -> echoService.echo(text);
     }
 
@@ -53,8 +43,7 @@ public class EchoRestService {
     )
     public DeferredResult<String> addConversationDefferred(@RequestParam("text") final String text) {
         final DeferredResult<String> deferredResult = new DeferredResult<>();
-        ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(100));
-        ListenableFuture<String> resultListenableFuture = service.submit(() -> echoService.echo(text));
+        ListenableFuture<String> resultListenableFuture = LISTENING_EXECUTOR_SERVICE.submit(() -> echoService.echo(text));
         Futures.addCallback(resultListenableFuture, new FutureCallback<String>() {
             public void onSuccess(String result) {
                 deferredResult.setResult(result);
