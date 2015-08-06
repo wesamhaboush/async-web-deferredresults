@@ -1,0 +1,4 @@
+#!/bin/bash -x
+
+CMD=$(ps axx | grep -i 'disruptor-rest-service' | grep -v grep | awk '{print "kill -9 " $1}')
+sh -c "$CMD"

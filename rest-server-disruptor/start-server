@@ -1,0 +1,3 @@
+#!/bin/bash -x
+
+nohup java -Xmx2048m -Xms2048m -cp ./target/disruptor-rest-service-0.0.1-SNAPSHOT.jar com.codebreeze.rest.server.TomcatDriver --http-port=8081 &

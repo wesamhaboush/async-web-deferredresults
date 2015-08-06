@@ -1,0 +1,10 @@
+#!/bin/bash -x
+
+./stop-server
+./start-server
+./run-ab
+./stop-server
+
+
+echo 'done.'
+
