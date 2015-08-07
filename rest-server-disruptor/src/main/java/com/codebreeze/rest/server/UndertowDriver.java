@@ -1,14 +1,12 @@
 package com.codebreeze.rest.server;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.codebreeze.rest.server.config.AppConfig;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
-import io.undertow.servlet.api.*;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.servlet.api.InstanceFactory;
+import io.undertow.servlet.api.InstanceHandle;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.servlet.Servlet;
@@ -19,7 +17,7 @@ import java.net.UnknownHostException;
 import static io.undertow.servlet.Servlets.*;
 
 
-public class UndertowDriver {
+public class UndertowDriver extends AbstractDriver{
 
     public static void main(final String... args) {
         try {
@@ -52,28 +50,6 @@ public class UndertowDriver {
         } catch (ServletException | UnknownHostException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static EchoServiceConfiguration parseParamsWithJCommander(final String... args) {
-        final EchoServiceConfiguration echoServiceConfiguration = new EchoServiceConfiguration();
-        new JCommander(echoServiceConfiguration, args);
-        return echoServiceConfiguration;
-    }
-
-    @Parameters(separators = "= ")
-    private static class EchoServiceConfiguration {
-        @Parameter(
-                names = {"--http-port"},
-                arity = 1,
-                description = "the port number on which the rest service will be listening"
-        )
-        private Integer port = 8081;
-    }
-
-    private static WebApplicationContext getContext() {
-        final AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation(AppConfig.class.getName());
-        return context;
     }
 
     private static class DispatcherServletInstanceFactory implements InstanceFactory<Servlet> {

@@ -15,19 +15,19 @@ import javax.servlet.annotation.WebServlet;
 import java.io.File;
 
 
-public class TomcatDriver {
+public class TomcatDriver extends AbstractDriver {
     public static void main(final String... args) throws Exception {
         final EchoServiceConfiguration echoServiceConfiguration = parseParamsWithJCommander(args);
         Connector connector = new Connector();
         connector.setProtocol("org.apache.coyote.http11.Http11Nio2Protocol");
         connector.setAsyncTimeout(15000);
-        connector.setAttribute("acceptCount", 1000); //default is 100
-        connector.setAttribute("acceptorThreadCount", 4); //default is 1
+        connector.setAttribute("acceptCount", 10000); //default is 100
+        connector.setAttribute("acceptorThreadCount", 400); //default is 1
         connector.setAttribute("maxConnections", 10000); //default is 10000 for nio2
-        connector.setAttribute("maxThreads", 400);
+        connector.setAttribute("maxThreads", 4000);
         connector.setAttribute("minSpareThreads", 100);
         connector.setAttribute("processorCache", 400);
-        connector.setAttribute("useCaches", true); //default is false
+//        connector.setAttribute("useCaches", true); //default is false
         connector.setPort(echoServiceConfiguration.port + 1);
 
         final Tomcat tomcat = new Tomcat();
@@ -42,31 +42,8 @@ public class TomcatDriver {
         tomcat.getServer().await();
     }
 
-    private static EchoServiceConfiguration parseParamsWithJCommander(final String...args) {
-        final EchoServiceConfiguration echoServiceConfiguration = new EchoServiceConfiguration();
-        new JCommander(echoServiceConfiguration, args);
-        return echoServiceConfiguration;
-    }
-
-    @Parameters(separators = "= ")
-    private static class EchoServiceConfiguration {
-        @Parameter(
-                names = {"--http-port"},
-                arity = 1,
-                description = "the port number on which the rest service will be listening"
-        )
-        private Integer port = 8082;
-    }
-
-    private static WebApplicationContext getContext() {
-        final AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation(AppConfig.class.getName());
-        return context;
-    }
-
     @WebServlet(asyncSupported = true)
     private static class AsyncDispatcherServlet extends DispatcherServlet{
-
         public AsyncDispatcherServlet(final WebApplicationContext wac) {
             super(wac);
         }

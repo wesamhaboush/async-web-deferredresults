@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class EchoService {
 
     public String echo(final String request) {
-        Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+        Uninterruptibles.sleepUninterruptibly(200, TimeUnit.MILLISECONDS);
         return new Date() + ":" + request;
     }
 }

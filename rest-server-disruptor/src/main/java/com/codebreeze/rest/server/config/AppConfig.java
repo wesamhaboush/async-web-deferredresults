@@ -10,10 +10,14 @@ import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.WorkerPool;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -28,6 +32,24 @@ import java.util.concurrent.Executors;
 @EnableWebMvc
 @EnableAsync
 public class AppConfig extends WebMvcConfigurationSupport implements AsyncConfigurer {
+
+    @Autowired
+    private Environment environment;
+
+    @Value("${disruptor.enabled:false}")
+    private boolean disruptorEnabled;
+
+    @Value("${callable.enabled:false}")
+    private boolean callableEnabled;
+
+    @Value("${deferred.result.enabled:false}")
+    private boolean deferredResultEnabled;
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
     @Bean
     public EchoService echoService() {
         return new EchoService();
@@ -35,21 +57,27 @@ public class AppConfig extends WebMvcConfigurationSupport implements AsyncConfig
 
     @Bean
     public ThreadPoolTaskExecutor taskExecutor() {
+        final int threadCount = callableEnabled ? 1500: 1;
+        System.out.println("callable " + (callableEnabled ? "enabled" : "disabled"));
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(1000);
-        threadPoolTaskExecutor.setMaxPoolSize(1000);
-        threadPoolTaskExecutor.setQueueCapacity(1000);
+        threadPoolTaskExecutor.setCorePoolSize(threadCount);
+        threadPoolTaskExecutor.setMaxPoolSize(threadCount);
+        threadPoolTaskExecutor.setQueueCapacity(threadCount);
         return threadPoolTaskExecutor;
     }
 
     @Bean
     public ListeningExecutorService listeningExecutorService(){
-        return MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1000));
+        System.out.println("deferredResult " + (deferredResultEnabled ? "enabled" : "disabled"));
+        final int threadCount = deferredResultEnabled ? 1500: 1;
+        return MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(threadCount));
     }
 
     @Bean
     public ExecutorService disruptorExecutor() {
-        return Executors.newFixedThreadPool(1000);
+        System.out.println("disruptor " + (disruptorEnabled ? "enabled" : "disabled"));
+        final int threadCount = disruptorEnabled ? 1500: 1;
+        return Executors.newFixedThreadPool(threadCount);
 //        return taskExecutor().getThreadPoolExecutor();
     }
 

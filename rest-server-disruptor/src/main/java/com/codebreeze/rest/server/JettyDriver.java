@@ -1,9 +1,7 @@
 package com.codebreeze.rest.server;
 
-import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.codebreeze.rest.server.config.AppConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -15,7 +13,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 import javax.servlet.annotation.WebServlet;
 
 
-public class JettyDriver {
+public class JettyDriver extends AbstractDriver{
     public static void main(final String... args) throws Exception {
         final EchoServiceConfiguration echoServiceConfiguration = parseParamsWithJCommander(args);
         final Server server = new Server(echoServiceConfiguration.port);
@@ -32,27 +30,7 @@ public class JettyDriver {
         server.join();
     }
 
-    private static EchoServiceConfiguration parseParamsWithJCommander(final String...args) {
-        final EchoServiceConfiguration echoServiceConfiguration = new EchoServiceConfiguration();
-        new JCommander(echoServiceConfiguration, args);
-        return echoServiceConfiguration;
-    }
 
-    @Parameters(separators = "= ")
-    private static class EchoServiceConfiguration {
-        @Parameter(
-                names = {"--http-port"},
-                arity = 1,
-                description = "the port number on which the rest service will be listening"
-        )
-        private Integer port = 8081;
-    }
-
-    private static WebApplicationContext getContext() {
-        final AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation(AppConfig.class.getName());
-        return context;
-    }
 
     @WebServlet(asyncSupported = true)
     private static class AsyncDispatcherServlet extends DispatcherServlet{
