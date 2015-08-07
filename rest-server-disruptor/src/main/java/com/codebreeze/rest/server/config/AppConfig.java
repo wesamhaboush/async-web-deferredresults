@@ -21,6 +21,7 @@ import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Configuration
 @ComponentScan(basePackages = {"com.codebreeze.rest.server"})
@@ -43,12 +44,13 @@ public class AppConfig extends WebMvcConfigurationSupport implements AsyncConfig
 
     @Bean
     public ListeningExecutorService listeningExecutorService(){
-        return MoreExecutors.listeningDecorator(taskExecutor().getThreadPoolExecutor());
+        return MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1000));
     }
 
     @Bean
     public ExecutorService disruptorExecutor() {
-        return taskExecutor().getThreadPoolExecutor();
+        return Executors.newFixedThreadPool(1000);
+//        return taskExecutor().getThreadPoolExecutor();
     }
 
 //    @Bean
