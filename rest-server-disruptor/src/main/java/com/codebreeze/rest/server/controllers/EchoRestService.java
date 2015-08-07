@@ -2,7 +2,10 @@ package com.codebreeze.rest.server.controllers;
 
 import com.codebreeze.rest.server.ringbuffer.EchoEvent;
 import com.codebreeze.rest.server.services.EchoService;
-import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.lmax.disruptor.RingBuffer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,16 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 @RestController
 @RequestMapping(value = "/echo")
 public class EchoRestService {
-    public static final ListeningExecutorService LISTENING_EXECUTOR_SERVICE = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1000));
 
-//    private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+    @Autowired
+    private ListeningExecutorService listeningExecutorService;
 
     @Autowired
     private EchoService echoService;
@@ -49,7 +51,7 @@ public class EchoRestService {
     )
     public DeferredResult<String> addConversationDefferred(@RequestParam("text") final String text) {
         final DeferredResult<String> deferredResult = new DeferredResult<>();
-        ListenableFuture<String> resultListenableFuture = LISTENING_EXECUTOR_SERVICE.submit(() -> echoService.echo(text));
+        ListenableFuture<String> resultListenableFuture = listeningExecutorService.submit(() -> echoService.echo(text));
         Futures.addCallback(resultListenableFuture, new FutureCallback<String>() {
             public void onSuccess(String result) {
                 deferredResult.setResult(result);

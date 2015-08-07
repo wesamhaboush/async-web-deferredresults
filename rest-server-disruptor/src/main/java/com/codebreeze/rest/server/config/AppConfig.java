@@ -4,6 +4,8 @@ import com.codebreeze.rest.server.ringbuffer.EchoEvent;
 import com.codebreeze.rest.server.ringbuffer.EchoEventHandler;
 import com.codebreeze.rest.server.ringbuffer.EchoWorkHandler;
 import com.codebreeze.rest.server.services.EchoService;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.WorkerPool;
@@ -12,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -20,7 +21,6 @@ import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Configuration
 @ComponentScan(basePackages = {"com.codebreeze.rest.server"})
@@ -33,19 +33,22 @@ public class AppConfig extends WebMvcConfigurationSupport implements AsyncConfig
     }
 
     @Bean
-    public AsyncTaskExecutor taskExecutor() {
+    public ThreadPoolTaskExecutor taskExecutor() {
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(500);
-        threadPoolTaskExecutor.setMaxPoolSize(500);
-        threadPoolTaskExecutor.setQueueCapacity(500);
+        threadPoolTaskExecutor.setCorePoolSize(1000);
+        threadPoolTaskExecutor.setMaxPoolSize(1000);
+        threadPoolTaskExecutor.setQueueCapacity(1000);
         return threadPoolTaskExecutor;
     }
 
     @Bean
+    public ListeningExecutorService listeningExecutorService(){
+        return MoreExecutors.listeningDecorator(taskExecutor().getThreadPoolExecutor());
+    }
+
+    @Bean
     public ExecutorService disruptorExecutor() {
-//        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2 );
-        ExecutorService executorService = Executors.newFixedThreadPool(2048);
-        return executorService;
+        return taskExecutor().getThreadPoolExecutor();
     }
 
 //    @Bean

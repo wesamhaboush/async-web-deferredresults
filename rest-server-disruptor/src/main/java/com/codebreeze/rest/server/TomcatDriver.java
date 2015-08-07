@@ -28,7 +28,7 @@ public class TomcatDriver {
         connector.setAttribute("minSpareThreads", 100);
         connector.setAttribute("processorCache", 400);
         connector.setAttribute("useCaches", true); //default is false
-        connector.setPort(echoServiceConfiguration.port + 2);
+        connector.setPort(echoServiceConfiguration.port + 1);
 
         final Tomcat tomcat = new Tomcat();
         tomcat.getService().addConnector(connector);

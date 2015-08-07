@@ -1,13 +1,13 @@
 #!/bin/bash -x
 
-curl -v http://localhost:8081/echo/once?text=1 | tee performance.log
-ab -k -n 1000 -c 400 http://localhost:8081/echo/once?text=1 | tee performance.log
+curl -v http://localhost:8082/echo/once?text=1 
+ab -k -n 1000 -c 1000 http://localhost:8082/echo/once?text=1 
 
-curl -v http://localhost:8081/echo/oncec?text=1 | tee performance.log
-ab -k -n 1000 -c 400 http://localhost:8081/echo/oncec?text=1 | tee performance.log
+curl -v http://localhost:8082/echo/oncec?text=1 
+ab -k -n 1000 -c 1000 http://localhost:8082/echo/oncec?text=1
 
-curl -v http://localhost:8081/echo/onced?text=1 | tee performance.log
-ab -k -n 1000 -c 400 http://localhost:8081/echo/onced?text=1 | tee performance.log
+curl -v http://localhost:8082/echo/onced?text=1
+ab -k -n 1000 -c 1000 http://localhost:8082/echo/onced?text=1
 
-curl -v http://localhost:8081/echo/oncer?text=1 | tee performance.log
-ab -k -n 1000 -c 400 http://localhost:8081/echo/oncer?text=1 | tee performance.log
+curl -v http://localhost:8082/echo/oncer?text=1
+ab -k -n 1000 -c 1000 http://localhost:8082/echo/oncer?text=1
